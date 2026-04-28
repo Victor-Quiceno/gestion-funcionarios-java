@@ -1,0 +1,21 @@
+# Archivos compilados de Java
+*.class
+*.jar
+*.war
+
+# Carpetas de construcción (build)
+/bin/
+/build/
+/target/
+
+# Archivos de configuración de IDEs (¡Muy importante ignorar esto!)
+.idea/
+.vscode/
+*.iml
+*.project
+*.classpath
+*.settings/
+
+# Archivos del sistema operativo (Mac/Windows)
+.DS_Store
+Thumbs.db
