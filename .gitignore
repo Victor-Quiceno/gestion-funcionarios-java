@@ -1,7 +1,10 @@
 # Archivos compilados de Java
 *.class
-*.jar
 *.war
+
+# Ignorar .jar generados, pero NO los de lib/ (driver de PostgreSQL)
+/build/**/*.jar
+/target/**/*.jar
 
 # Carpetas de construcción (build)
 /bin/
