@@ -22,7 +22,8 @@ import java.util.List;
 public class FrmFuncionario extends JFrame {
 
     // Componentes del formulario
-    private JTextField txtNombres, txtApellidos, txtDocumento, txtCorreo, txtTelefono, txtFechaIngreso;
+    private JTextField txtNombres, txtApellidos, txtDocumento, txtCorreo, txtTelefono;
+    private JFormattedTextField txtFechaIngreso;
     private JComboBox<String> comboEstado;
     private JComboBox<CargoPOJO> comboCargo;
     private JComboBox<DependenciaPOJO> comboDependencia;
@@ -85,9 +86,15 @@ public class FrmFuncionario extends JFrame {
         txtTelefono = new JTextField();
         panelForm.add(txtTelefono);
 
-        // Placeholder para Fecha
-        panelForm.add(new JLabel("Fecha Ingreso (YYYY-MM-DD):"));
-        txtFechaIngreso = new JTextField();
+        // Placeholder y Máscara para Fecha
+        panelForm.add(new JLabel("Fecha Ingreso:"));
+        try {
+            javax.swing.text.MaskFormatter dateMask = new javax.swing.text.MaskFormatter("####-##-##");
+            dateMask.setPlaceholderCharacter('_');
+            txtFechaIngreso = new JFormattedTextField(dateMask);
+        } catch (java.text.ParseException e) {
+            txtFechaIngreso = new JFormattedTextField();
+        }
         txtFechaIngreso.setToolTipText("Ejemplo: 2024-05-03");
         panelForm.add(txtFechaIngreso);
 
@@ -179,6 +186,11 @@ public class FrmFuncionario extends JFrame {
             for (DependenciaPOJO d : dependencias) {
                 comboDependencia.addItem(d);
             }
+
+            // Dejar los desplegables en blanco por defecto
+            comboCargo.setSelectedIndex(-1);
+            comboDependencia.setSelectedIndex(-1);
+            comboEstado.setSelectedIndex(-1);
         } catch (DatabaseException e) {
             mostrarError("Error al conectar a la base de datos para cargar opciones.", e);
         }
@@ -285,17 +297,24 @@ public class FrmFuncionario extends JFrame {
         f.setTelefono(txtTelefono.getText().trim());
 
         // Validar que no haya nulos de JComboBox
-        if (comboCargo.getSelectedItem() != null) {
-            f.setIdCargo(((CargoPOJO) comboCargo.getSelectedItem()).getIdCargo());
+        if (comboCargo.getSelectedIndex() == -1) {
+            throw new IllegalArgumentException("Debe seleccionar un Cargo de la lista.");
         }
-        if (comboDependencia.getSelectedItem() != null) {
-            f.setIdDependencia(((DependenciaPOJO) comboDependencia.getSelectedItem()).getIdDependencia());
+        f.setIdCargo(((CargoPOJO) comboCargo.getSelectedItem()).getIdCargo());
+
+        if (comboDependencia.getSelectedIndex() == -1) {
+            throw new IllegalArgumentException("Debe seleccionar una Dependencia de la lista.");
+        }
+        f.setIdDependencia(((DependenciaPOJO) comboDependencia.getSelectedItem()).getIdDependencia());
+
+        if (comboEstado.getSelectedIndex() == -1) {
+            throw new IllegalArgumentException("Debe seleccionar un Estado de la lista.");
         }
         f.setEstado(comboEstado.getSelectedItem().toString());
 
-        // Esto arrojará IllegalArgumentException si está mal escrito
+        // Esto arrojará IllegalArgumentException si está mal escrito o incompleto
         String fecha = txtFechaIngreso.getText().trim();
-        if (!fecha.isEmpty()) {
+        if (!fecha.isEmpty() && !fecha.contains("_")) {
             f.setFechaIngreso(Date.valueOf(fecha));
         } else {
             throw new IllegalArgumentException("Fecha vacía");
@@ -342,12 +361,12 @@ public class FrmFuncionario extends JFrame {
         txtDocumento.setText("");
         txtCorreo.setText("");
         txtTelefono.setText("");
-        txtFechaIngreso.setText("");
-        comboEstado.setSelectedIndex(0);
+        txtFechaIngreso.setValue(null);
+        comboEstado.setSelectedIndex(-1);
         if (comboCargo.getItemCount() > 0)
-            comboCargo.setSelectedIndex(0);
+            comboCargo.setSelectedIndex(-1);
         if (comboDependencia.getItemCount() > 0)
-            comboDependencia.setSelectedIndex(0);
+            comboDependencia.setSelectedIndex(-1);
 
         idFuncionarioSeleccionado = -1;
         tabla.clearSelection();
