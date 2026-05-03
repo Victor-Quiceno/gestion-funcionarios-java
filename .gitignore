@@ -6,6 +6,9 @@
 /build/**/*.jar
 /target/**/*.jar
 
+# Environment variables
+.env
+
 # Carpetas de construcción (build)
 /bin/
 /build/
